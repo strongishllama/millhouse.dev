@@ -1,3 +1,3 @@
 # millhouse.dev
 
-Taliesin's personal website where he posts about topics that interest him and his open source work.
+My personal website where I post about topics that interest me and my open source work.
