@@ -1,0 +1,61 @@
+{{define "content"}}
+<main style="background-color: #FFFFFF;">
+  <div class="section container">
+    <h1 class="title">Graceful Shutdowns with signal.NotifyContext</h1>
+    <h1 class="title is-5">
+      <svg xmlns="http://www.w3.org/2000/svg" height="1em" viewBox="0 0 448 512">
+        <path
+          d="M152 24c0-13.3-10.7-24-24-24s-24 10.7-24 24V64H64C28.7 64 0 92.7 0 128v16 48V448c0 35.3 28.7 64 64 64H384c35.3 0 64-28.7 64-64V192 144 128c0-35.3-28.7-64-64-64H344V24c0-13.3-10.7-24-24-24s-24 10.7-24 24V64H152V24zM48 192h80v56H48V192zm0 104h80v64H48V296zm128 0h96v64H176V296zm144 0h80v64H320V296zm80-48H320V192h80v56zm0 160v40c0 8.8-7.2 16-16 16H320V408h80zm-128 0v56H176V408h96zm-144 0v56H64c-8.8 0-16-7.2-16-16V408h80zM272 248H176V192h96v56z" />
+      </svg>
+      February 25th, 2021
+      <div>
+        <span class="tag is-success is-light">golang</span>
+        <span class="tag is-success is-light">cli</span>
+      </div>
+    </h1>
+    <div class="content has-text-dark">
+      <p>Graceful shutdowns are an important part of any application, especially if that application modifies state.
+        Before you “pull the plug” you should be responding to those HTTP requests, finishing off database interactions
+        and closing off anything that might be left otherwise hanging or orphaned.</p>
+      <p>With the new signal.NotifyContext function that was released with Go 1.16, graceful shutdowns are easier than
+        ever to add into your application.</p>
+      <p>
+        Here is a simple web server with a single handler that will sleep for 10 seconds before responding. If you run
+        this web server locally, execute a <a href="https://curl.se" target="_blank">cURL</a> or <a
+          href="https://www.postman.com" target="_blank">Postman</a> request against it, then immediately send the
+        interrupt signal
+        with Ctrl+C. You’ll see the server gracefully shutdown by responding to the existing request before terminating.
+        If the shutdown is taking too long another interrupt signal can be sent to exit immediately. Alternatively the
+        timeout will kick in after 5 seconds.
+      </p>
+      {{.Example}}
+      <p>Below you'll find some resources that I would recommend reading if you'd like a better
+        understanding of the signal.NotifyContext function, the context package or the importance of graceful shutdowns.
+      </p>
+      <ul>
+        <li>
+          signal.NotifyContext
+          <a href="https://pkg.go.dev/os/signal#NotifyContext" target="_blank">
+            documentation</a>.
+        </li>
+        <li>
+          JustForFunc Episode 9,
+          <a href="https://www.youtube.com/watch?list=PL64wiCrrxh4Jisi7OcCJIUpguV_f5jGnZ&v=LSzR0VEraWw" target="_blank">
+            The Context Package</a>.
+        </li>
+        <li>
+          Wayne Ashley Berry's
+          <a href="https://medium.com/over-engineering/graceful-shutdown-with-go-http-servers-and-kubernetes-rolling-updates-6697e7db17cf"
+            target="_blank"> article </a>
+          on graceful shutdown with Go http servers and Kubernetes rolling updates. This is a great article showing a
+          real world situation where this can be applied. Just note, this article was written pre Go 1.16 so the code
+          snippets will show the older way of listening for signals from the operating system.
+        </li>
+        <li>Some insightful <a href="https://www.reddit.com/r/golang/comments/ngx1mu/graceful_shutdowns_in_golang_with"
+            target="_blank">comments and feedback</a> about this post from some kind Gophers over on <a class="link"
+            href="https://www.reddit.com/r/golang" target="_blank">r/golang</a>.</li>
+      </ul>
+    </div>
+  </div>
+</main>
+{{end}}

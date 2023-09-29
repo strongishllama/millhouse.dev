@@ -1,0 +1,69 @@
+{{define "layout"}}
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bulma/0.9.4/css/bulma.min.css"
+    integrity="sha512-HqxHUkJM0SYcbvxUw5P60SzdOTy/QVwA1JJrvaXJv4q7lmbDZCmZaqz01UPOaQveoxfYRv1tHozWGPMcuTBuvQ=="
+    crossorigin="anonymous" referrerpolicy="no-referrer" />
+  <!-- General head options. -->
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width,initial-scale=1.0">
+  <meta name="description" content="Taliesin's personal website where he posts about topics that interest him and his open source work.">
+  <meta name="mobile-web-app-capable" content="yes">
+  <title>Taliesin Millhouse</title>
+  <!-- Open Graph meta tags for social link previews. -->
+  <meta content="Taliesin Millhouse · Software Developer" property="og:title">
+  <meta content="Taliesin's personal website where he posts about topics that interest him and his open source work." property="og:description">
+  <meta content="/static/images/og-image.png" property="og:image">
+  <!-- Twitter meta tags for social link previews. -->
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="Taliesin Millhouse · Software Developer">
+  <meta name="twitter:description" content="Taliesin's personal website where he posts about topics that interest him and his open source work.">
+  <meta name="twitter:image" content="/static/images/og-image.png">
+</head>
+
+<body>
+  <nav class="navbar" role="navigation" aria-label="main navigation">
+    <div class="navbar-brand">
+      <a class="navbar-burger" id="navbar-burger" role="navbar button">
+        <span aria-hidden="true"></span>
+        <span aria-hidden="true"></span>
+        <span aria-hidden="true"></span>
+      </a>
+    </div>
+    <div class="navbar-menu" id="navbar-menu">
+      <div class="navbar-start">
+        <a class="navbar-item" href="/" aria-label="home page">Home</a>
+        <a class="navbar-item" href="/posts" aria-label="posts page">Posts</a>
+        <a class="navbar-item" href="/open-source" aria-label="open source page">Open Source</a>
+        <a class="navbar-item" href="/contact" aria-label="contact page">Contact</a>
+      </div>
+      <div class="navbar-end">
+        <div class="navbar-item has-dropdown is-hoverable">
+          <a class="navbar-item" aria-label="additional pages">
+            <svg xmlns="http://www.w3.org/2000/svg" height="1em" viewBox="0 0 512 512">
+              <path
+                d="M233.4 406.6c12.5 12.5 32.8 12.5 45.3 0l192-192c12.5-12.5 12.5-32.8 0-45.3s-32.8-12.5-45.3 0L256 338.7 86.6 169.4c-12.5-12.5-32.8-12.5-45.3 0s-12.5 32.8 0 45.3l192 192z" />
+            </svg> </a>
+          <div class="navbar-dropdown is-right">
+            <a class="navbar-item" href="/licenses" aria-label="licenses page">Licenses</a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </nav>
+  {{template "content" .}}
+</body>
+
+</html>
+<script>
+  let burger = document.getElementById("navbar-burger");
+  let menu = document.getElementById("navbar-menu");
+  document.getElementById("navbar-burger").addEventListener("click", function toggle(e) {
+    burger.classList.toggle("is-active");
+    menu.classList.toggle("is-active");
+  });
+</script>
+{{end}}
