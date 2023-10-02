@@ -19,6 +19,6 @@ build:
     - go version
     - go run main.go build
     - git status
-    - npx --yes wrangler pages deploy ./dist --project-name millhouse-dev
+    - npx --yes wrangler pages deploy ./dist --project-name millhouse-dev --env Production
   only:
     - main
