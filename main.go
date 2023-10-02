@@ -3,13 +3,14 @@ package main
 import (
 	"context"
 	"embed"
-	"fmt"
 	log "log/slog"
 	"os"
 	"os/signal"
 	"time"
 
 	"gitlab.com/strongishllama/millhouse.dev/internal/app"
+
+	flag "github.com/spf13/pflag"
 )
 
 //go:embed static
@@ -29,21 +30,42 @@ func main() {
 		Level: log.LevelDebug,
 	})))
 
-	// todo
-	address := "127.0.0.1:8080"
+	if len(os.Args) < 2 {
+		log.Error("missing command, expected usage: millhouse <command>")
+		os.Exit(1)
+	}
+
+	var client app.Client
 
 	// TODO: Switch to embed.FS.
-	tmpl := os.DirFS(".")
+	// tmpl := os.DirFS(".")
 
-	client, err := app.NewClient(address, static, tmpl, codeBlocks)
-	if err != nil {
-		log.Error("new app client", "error", err)
+	switch os.Args[1] {
+	case "build":
+		var err error
+		client, err = app.NewBuildClient(static, templates, codeBlocks)
+		if err != nil {
+			log.Error("new build client", "error", err)
+			os.Exit(1)
+		}
+	case "serve":
+		var address string
+		flag.StringVar(&address, "address", "127.0.0.1:8080", "address to listen on")
+		flag.Parse()
+
+		var err error
+		client, err = app.NewServeClient(address, static, templates, codeBlocks)
+		if err != nil {
+			log.Error("new serve client", "error", err)
+			os.Exit(1)
+		}
+	default:
+		log.Error("unknown command, expected usage: millhouse <command>")
 		os.Exit(1)
 	}
 
 	go func() {
-		log.Info(fmt.Sprintf("listening on http://%s", address))
-		if err := client.Startup(ctx); err != nil {
+		if err := client.Run(ctx, stop); err != nil {
 			log.Error("app startup", "error", err)
 			os.Exit(1)
 		}
@@ -52,13 +74,13 @@ func main() {
 	<-ctx.Done()
 
 	stop()
-	log.Info("shutting down gracefully, press Ctrl+C again to force")
+	log.Info("stopping down gracefully, press Ctrl+C again to force")
 
 	timeoutCtx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 	defer cancel()
 
 	go func() {
-		if err := client.Shutdown(ctx, cancel); err != nil {
+		if err := client.Stop(ctx, cancel); err != nil {
 			log.Error("app shutdown", "error", err)
 		}
 	}()

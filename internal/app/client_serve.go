@@ -1,17 +1,98 @@
 package app
 
 import (
+	"bytes"
+	"context"
+	"fmt"
 	"io"
+	"io/fs"
 	log "log/slog"
 	"net/http"
 	"strings"
+	"text/template"
+	"time"
 
 	"github.com/alecthomas/chroma/quick"
 )
 
-func (c *Client) registerRoutes() {
+type ServeClient struct {
+	server     *http.Server
+	mux        *http.ServeMux
+	static     fs.FS
+	templates  fs.FS
+	codeBlocks fs.FS
+}
+
+func NewServeClient(address string, static fs.FS, templates fs.FS, codeBlocks fs.FS) (*ServeClient, error) {
+	var handler http.Handler = http.NewServeMux()
+	mux, ok := handler.(*http.ServeMux)
+	if !ok {
+		return nil, fmt.Errorf("handler is not a *http.ServeMux: %T", handler)
+	}
+
+	handler = NewRequestDuration(handler)
+	handler = NewMethodCheck(handler)
+
+	return &ServeClient{
+		server: &http.Server{
+			Addr:              address,
+			Handler:           handler,
+			ReadTimeout:       5 * time.Second,
+			ReadHeaderTimeout: 5 * time.Second,
+			WriteTimeout:      5 * time.Second,
+			IdleTimeout:       5 * time.Second,
+		},
+		mux:        mux,
+		static:     static,
+		templates:  templates,
+		codeBlocks: codeBlocks,
+	}, nil
+}
+
+func (c ServeClient) Run(ctx context.Context, cancel context.CancelFunc) error {
+	c.registerRoutes()
+
+	log.Info(fmt.Sprintf("listening on http://%s", c.server.Addr))
+
+	if err := c.server.ListenAndServe(); err != nil {
+		log.Error("listen and serve", "error", err)
+	}
+	return nil
+}
+
+func (c ServeClient) Stop(ctx context.Context, cancel context.CancelFunc) error {
+	if err := c.server.Shutdown(ctx); err != nil {
+		return fmt.Errorf("client stop: %w", err)
+	}
+
+	cancel()
+	return nil
+}
+
+func (c ServeClient) render(name string, w http.ResponseWriter, data any) error {
+	tmpl, err := template.New(name).ParseFS(c.templates, "templates/layout.html", fmt.Sprintf("templates/%s.html", name))
+	if err != nil {
+		return fmt.Errorf("parse template: %w", err)
+	}
+
+	// Render to a buffer first so we can see if there are any errors before writing to the response.
+	resp := bytes.Buffer{}
+	if err := tmpl.ExecuteTemplate(&resp, "layout", data); err != nil {
+		return fmt.Errorf("execute template: %w", err)
+	}
+
+	// If there were no errors above, we can write the output.
+	w.Header().Set("Content-Type", "text/html; charset=utf-8")
+	if _, err := resp.WriteTo(w); err != nil {
+		return fmt.Errorf("write output: %w", err)
+	}
+
+	return nil
+}
+
+func (c *ServeClient) registerRoutes() {
 	c.mux.HandleFunc("/favicon.ico", func(w http.ResponseWriter, r *http.Request) {
-		file, err := c.static.Open("static/images/favicon.png")
+		file, err := c.static.Open("static/images/favicon.ico")
 		if err != nil {
 			log.Error("open favicon", "error", err)
 			w.WriteHeader(http.StatusInternalServerError)
@@ -19,7 +100,7 @@ func (c *Client) registerRoutes() {
 		}
 		defer file.Close()
 
-		w.Header().Set("Content-Type", "image/png")
+		w.Header().Set("Content-Type", "image/x-icon")
 		if _, err := io.Copy(w, file); err != nil {
 			log.Error("copy favicon", "error", err)
 			w.WriteHeader(http.StatusInternalServerError)
