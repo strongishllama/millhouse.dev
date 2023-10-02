@@ -1,0 +1,10 @@
+stages:
+  - deploy
+
+build:
+  stage: deploy
+  script:
+    - go version
+    - npm --version
+  only:
+    - main
