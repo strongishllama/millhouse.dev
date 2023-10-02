@@ -17,8 +17,8 @@ build:
     - npm --version
     - npx --version
     - go version
+    - git checkout main
     - go run main.go build
-    - git status
-    - npx --yes wrangler pages deploy ./dist --project-name millhouse-dev --env Production
+    - npx --yes wrangler pages deploy ./dist --project-name millhouse-dev
   only:
     - main
