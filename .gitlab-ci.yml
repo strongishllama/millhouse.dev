@@ -1,17 +1,22 @@
 image: node:latest
 
+variables:
+  GO_VERSION: "1.21.1"
+
 stages:
   - deploy
 
 build:
   stage: deploy
   script:
+    - apt-get update && apt-get install -y wget tar
+    - wget https://golang.org/dl/go${GO_VERSION}.linux-amd64.tar.gz
+    - tar -C /usr/local -xzf go${GO_VERSION}.linux-amd64.tar.gz
+    - export PATH=$PATH:/usr/local/go/bin
     - npm --version
     - npx --version
-    - apt-get update && apt-get install -y wget tar
-    - wget https://golang.org/dl/go1.17.2.linux-amd64.tar.gz
-    - tar -C /usr/local -xzf go1.17.2.linux-amd64.tar.gz
-    - export PATH=$PATH:/usr/local/go/bin
     - go version
+    - go run main.go build
+    - npx --yes wrangler pages deploy ./dist --project-name millhouse-dev
   only:
     - main
