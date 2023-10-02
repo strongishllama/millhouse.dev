@@ -1,8 +1,8 @@
 stages:
-  - deploy
+  - build
 
-build:
-  stage: deploy
+build_static:
+  stage: build
   script:
     - go version
     - npm --version
