@@ -17,6 +17,7 @@ build:
     - npm --version
     - npx --version
     - go version
+    # Without checking out main first Cloudflare will treat the source as HEAD and deploy to Preview instead of Production.
     - git checkout main
     - go run main.go build
     - npx --yes wrangler pages deploy ./dist --project-name millhouse-dev

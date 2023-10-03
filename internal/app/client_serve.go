@@ -92,7 +92,7 @@ func (c ServeClient) render(name string, w http.ResponseWriter, data any) error 
 
 func (c *ServeClient) registerRoutes() {
 	c.mux.HandleFunc("/favicon.ico", func(w http.ResponseWriter, r *http.Request) {
-		file, err := c.static.Open("static/images/favicon.ico")
+		file, err := c.static.Open("static/root/favicon.ico")
 		if err != nil {
 			log.Error("open favicon", "error", err)
 			w.WriteHeader(http.StatusInternalServerError)
@@ -107,6 +107,23 @@ func (c *ServeClient) registerRoutes() {
 			return
 		}
 	})
+	c.mux.HandleFunc("/robots.txt", func(w http.ResponseWriter, r *http.Request) {
+		file, err := c.static.Open("static/root/robots.txt")
+		if err != nil {
+			log.Error("open robots.txt", "error", err)
+			w.WriteHeader(http.StatusInternalServerError)
+			return
+		}
+		defer file.Close()
+
+		w.Header().Set("Content-Type", "text/plain")
+		if _, err := io.Copy(w, file); err != nil {
+			log.Error("copy robots.txt", "error", err)
+			w.WriteHeader(http.StatusInternalServerError)
+			return
+		}
+	})
+	// c.mux.Handle("/static/", http.StripPrefix("/static/", http.FileServer(http.FS(c.static))))
 	c.mux.Handle("/static/", http.FileServer(http.FS(c.static)))
 
 	c.mux.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {

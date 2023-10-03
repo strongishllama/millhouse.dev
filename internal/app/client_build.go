@@ -8,6 +8,7 @@ import (
 	"io"
 	"io/fs"
 	"os"
+	"path/filepath"
 	"strings"
 	"text/template"
 
@@ -36,7 +37,11 @@ func (c BuildClient) Run(ctx context.Context, cancel context.CancelFunc) error {
 		return fmt.Errorf("client run: %w", err)
 	}
 
-	if err := c.copyAll("static", outDir); err != nil {
+	if err := c.copyAll("static/images", outDir, true); err != nil {
+		return fmt.Errorf("client run: %w", err)
+	}
+
+	if err := c.copyAll("static/root", outDir, false); err != nil {
 		return fmt.Errorf("client run: %w", err)
 	}
 
@@ -62,19 +67,22 @@ func (c BuildClient) initOutDir(outDir string) error {
 	return nil
 }
 
-func (c BuildClient) copyAll(src, dst string) error {
+func (c BuildClient) copyAll(src, dst string, recursive bool) error {
 	if err := fs.WalkDir(c.static, src, func(srcPath string, d fs.DirEntry, err error) error {
 		if err != nil {
 			return fmt.Errorf("walk dir: %w", err)
 		}
 
-		dstPath := fmt.Sprintf("%s/%s", dst, srcPath)
+		dstPath := fmt.Sprintf("%s/%s", dst, filepath.Base(srcPath))
+		if recursive {
+			dstPath = fmt.Sprintf("%s/%s", dst, srcPath)
+		}
 
-		if d.IsDir() {
-			if err := os.Mkdir(dstPath, 0o777); err != nil {
+		if d.IsDir() && recursive {
+			if err := os.MkdirAll(dstPath, 0o777); err != nil {
 				return fmt.Errorf("walk dir: %w", err)
 			}
-		} else {
+		} else if !d.IsDir() {
 			if err := c.copy(srcPath, dstPath); err != nil {
 				return fmt.Errorf("walk dir: %w", err)
 			}
