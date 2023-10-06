@@ -195,6 +195,10 @@ func (c *ServeClient) registerRoutes() {
 		}
 	})
 
+	// Redirect old post URL to new post URL.
+	c.mux.HandleFunc("/posts/graceful-shutdowns-in-golang-with-signal-notify-context", func(w http.ResponseWriter, r *http.Request) {
+		http.Redirect(w, r, "/posts/graceful-shutdowns-with-signal-notify-context", http.StatusSeeOther)
+	})
 	c.mux.HandleFunc("/posts/graceful-shutdowns-with-signal-notify-context", func(w http.ResponseWriter, r *http.Request) {
 		file, err := c.codeBlocks.Open("code-blocks/graceful-shutdowns-with-signal-notify-context/main.go")
 		if err != nil {

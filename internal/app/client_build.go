@@ -160,6 +160,12 @@ func (c BuildClient) renderAll(src, dst string) error {
 				}{
 					Example: example.String(),
 				}
+
+				// TODO: Also fix this.
+				oldDstPath := strings.Replace(dstPath, "graceful-shutdowns-with-signal-notify-context", "graceful-shutdowns-in-golang-with-signal-notify-context", 1)
+				if err := c.render(srcPath, oldDstPath, content); err != nil {
+					return fmt.Errorf("walk dir: %w", err)
+				}
 			}
 			if err := c.render(srcPath, dstPath, content); err != nil {
 				return fmt.Errorf("walk dir: %w", err)
