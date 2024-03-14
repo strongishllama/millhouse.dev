@@ -2,7 +2,6 @@ package main
 
 import (
 	"context"
-	"embed"
 	log "log/slog"
 	"os"
 	"os/signal"
@@ -12,15 +11,6 @@ import (
 
 	flag "github.com/spf13/pflag"
 )
-
-//go:embed static
-var static embed.FS
-
-//go:embed templates
-var templates embed.FS
-
-//go:embed code-blocks
-var codeBlocks embed.FS
 
 func main() {
 	ctx, stop := signal.NotifyContext(context.Background(), os.Interrupt)
@@ -35,10 +25,11 @@ func main() {
 		os.Exit(1)
 	}
 
-	var client app.Client
+	static := os.DirFS("static")
+	templates := os.DirFS("templates")
+	codeBlocks := os.DirFS("codeBlocks")
 
-	// TODO: Switch to embed.FS.
-	// tmpl := os.DirFS(".")
+	var client app.Client
 
 	switch os.Args[1] {
 	case "build":

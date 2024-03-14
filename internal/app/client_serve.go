@@ -70,7 +70,7 @@ func (c ServeClient) Stop(ctx context.Context, cancel context.CancelFunc) error 
 }
 
 func (c ServeClient) render(name string, w http.ResponseWriter, data any) error {
-	tmpl, err := template.New(name).ParseFS(c.templates, "templates/layout.html", fmt.Sprintf("templates/%s.html", name))
+	tmpl, err := template.New(name).ParseFS(c.templates, "layout.html", fmt.Sprintf("%s.html", name))
 	if err != nil {
 		return fmt.Errorf("parse template: %w", err)
 	}
@@ -92,7 +92,7 @@ func (c ServeClient) render(name string, w http.ResponseWriter, data any) error 
 
 func (c *ServeClient) registerRoutes() {
 	c.mux.HandleFunc("/favicon.ico", func(w http.ResponseWriter, r *http.Request) {
-		file, err := c.static.Open("static/root/favicon.ico")
+		file, err := c.static.Open("root/favicon.ico")
 		if err != nil {
 			log.Error("open favicon", "error", err)
 			w.WriteHeader(http.StatusInternalServerError)
@@ -108,7 +108,7 @@ func (c *ServeClient) registerRoutes() {
 		}
 	})
 	c.mux.HandleFunc("/robots.txt", func(w http.ResponseWriter, r *http.Request) {
-		file, err := c.static.Open("static/root/robots.txt")
+		file, err := c.static.Open("root/robots.txt")
 		if err != nil {
 			log.Error("open robots.txt", "error", err)
 			w.WriteHeader(http.StatusInternalServerError)
@@ -123,8 +123,9 @@ func (c *ServeClient) registerRoutes() {
 			return
 		}
 	})
-	// c.mux.Handle("/static/", http.StripPrefix("/static/", http.FileServer(http.FS(c.static))))
-	c.mux.Handle("/static/", http.FileServer(http.FS(c.static)))
+	c.mux.Handle("/static/", http.StripPrefix("/static/", http.FileServer(http.FS(c.static))))
+	// Use this if embed.FS is being used, also need to add the prefixes to all the files if embed.FS is used.
+	// c.mux.Handle("/static/", http.FileServer(http.FS(c.static)))
 
 	c.mux.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
 		if r.URL.Path != "/" {
