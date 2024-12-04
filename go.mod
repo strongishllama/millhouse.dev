@@ -3,7 +3,7 @@ module github.com/strongishllama/millhouse.dev-cdk
 go 1.16
 
 require (
-	github.com/aws/aws-lambda-go v1.32.0
+	github.com/aws/aws-lambda-go v1.38.0
 	github.com/aws/aws-sdk-go-v2 v1.16.4
 	github.com/aws/aws-sdk-go-v2/config v1.15.9
 	github.com/aws/aws-sdk-go-v2/feature/dynamodb/attributevalue v1.9.2
@@ -17,6 +17,5 @@ require (
 	github.com/gofor-little/xerror v0.5.1 // indirect
 	github.com/gofor-little/xlambda v0.6.0
 	github.com/gofor-little/xrand v0.3.2
-	github.com/stretchr/testify v1.7.1
-	gopkg.in/yaml.v3 v3.0.0-20210107192922-496545a6307b // indirect
+	github.com/stretchr/testify v1.7.2
 )
