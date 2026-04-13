@@ -1,10 +1,32 @@
+include:
+  - template: Security/Secret-Detection.gitlab-ci.yml
+
 image: node:latest
 
 variables:
   GO_VERSION: "1.21.1"
 
 stages:
+  - lint
   - deploy
+
+secret_detection:
+  stage: lint
+  rules:
+    - if: $CI_PIPELINE_SOURCE != "schedule"
+
+renovate:
+  stage: lint
+  image: ghcr.io/renovatebot/renovate:latest
+  rules:
+    - if: $CI_PIPELINE_SOURCE == "schedule"
+  variables:
+    RENOVATE_PLATFORM: gitlab
+    RENOVATE_ENDPOINT: $CI_API_V4_URL
+    RENOVATE_TOKEN: $CI_JOB_TOKEN
+    LOG_LEVEL: info
+  script:
+    - renovate $CI_PROJECT_PATH
 
 build:
   stage: deploy
@@ -23,3 +45,5 @@ build:
     - npx --yes wrangler pages deploy ./dist --project-name millhouse-dev
   only:
     - main
+  except:
+    - schedules
