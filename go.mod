@@ -1,9 +1,10 @@
 module gitlab.com/strongishllama/millhouse.dev
 
-go 1.21.1
+go 1.25
 
 require (
 	github.com/alecthomas/chroma v0.10.0
+	github.com/alecthomas/chroma/v2 v2.27.0
 	github.com/spf13/pflag v1.0.10
 )
 
