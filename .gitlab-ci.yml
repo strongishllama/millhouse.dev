@@ -4,7 +4,7 @@ include:
 image: node:latest
 
 variables:
-  GO_VERSION: "1.21.1"
+  GO_VERSION: "1.26.4"
 
 stages:
   - lint
