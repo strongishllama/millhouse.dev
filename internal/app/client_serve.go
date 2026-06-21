@@ -12,7 +12,7 @@ import (
 	"text/template"
 	"time"
 
-	"github.com/alecthomas/chroma/quick"
+	"github.com/alecthomas/chroma/v2/quick"
 )
 
 type ServeClient struct {
